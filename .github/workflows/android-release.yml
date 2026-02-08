@@ -99,23 +99,54 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          BUILD_ID=$(jq -r '.[0].id // .id' eas-build.json)
+          BUILD_ID=$(jq -r '.[0].id // .id // empty' eas-build.json)
+          if [ -z "$BUILD_ID" ] || [ "$BUILD_ID" = "null" ]; then
+            echo "Could not resolve BUILD_ID from eas-build.json" >&2
+            cat eas-build.json >&2
+            exit 1
+          fi
           echo "BUILD_ID=$BUILD_ID" >> $GITHUB_ENV
-          npx -y eas-cli build:view "$BUILD_ID" --non-interactive --json > build-view.json
 
+          # Prefer artifacts from the build output itself (when --wait is used).
           APK_URL=$(jq -r '
+            .[0].artifacts.buildUrl //
             .artifacts.buildUrl //
+            .[0].artifacts.applicationArchiveUrl //
             .artifacts.applicationArchiveUrl //
+            .[0].artifacts.artifactUrl //
             .artifacts.artifactUrl //
+            .[0].artifacts.apkUrl //
             .artifacts.apkUrl //
+            .[0].artifacts.url //
             .artifacts.url //
             empty
-          ' build-view.json)
+          ' eas-build.json)
 
           if [ -z "$APK_URL" ] || [ "$APK_URL" = "null" ]; then
-            echo "Could not find an APK URL in build-view.json" >&2
-            echo "--- build-view.json ---" >&2
-            cat build-view.json >&2
+            # Fallback to build:view.
+            if ! npx -y eas-cli build:view "$BUILD_ID" --non-interactive --json > build-view.json; then
+              echo "eas build:view failed" >&2
+              if [ -f build-view.json ]; then cat build-view.json >&2; fi
+              exit 1
+            fi
+            APK_URL=$(jq -r '
+              .artifacts.buildUrl //
+              .artifacts.applicationArchiveUrl //
+              .artifacts.artifactUrl //
+              .artifacts.apkUrl //
+              .artifacts.url //
+              empty
+            ' build-view.json)
+          fi
+
+          if [ -z "$APK_URL" ] || [ "$APK_URL" = "null" ]; then
+            echo "Could not find an APK URL" >&2
+            echo "--- eas-build.json ---" >&2
+            cat eas-build.json >&2
+            if [ -f build-view.json ]; then
+              echo "--- build-view.json ---" >&2
+              cat build-view.json >&2
+            fi
             exit 1
           fi
 
