@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Data / generated
+*.db
+*.sqlite
+*.sqlite3
+
+# Bundles / exports
+*.apk
+*.aab
+*.bundle
+*.strings
+
+# Local / temp
+.DS_Store
+.env
+.env.*
+
+# Workspace backup (temporary while migrating git history)
+_mobile_repo/
+
