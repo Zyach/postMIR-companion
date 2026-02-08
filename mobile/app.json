@@ -2,7 +2,7 @@
   "expo": {
     "name": "PostMIR Companion",
     "slug": "postmir-companion",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "postmir",
@@ -13,7 +13,7 @@
     },
     "android": {
       "package": "com.postmir.explorer",
-      "versionCode": 4,
+      "versionCode": 5,
       "permissions": [
         "android.permission.REQUEST_INSTALL_PACKAGES"
       ],
