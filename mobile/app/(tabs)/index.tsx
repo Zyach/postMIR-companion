@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import * as FileSystem from 'expo-file-system';
+import * as LegacyFileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { StatusBar } from 'expo-status-bar';
 import * as Application from 'expo-application';
@@ -725,7 +726,7 @@ export default function HomeScreen() {
       const baseDir = FileSystem.Paths.cache.uri || FileSystem.Paths.document.uri;
       if (!baseDir) throw new Error('Sin directorio con escritura');
       const fileUri = `${baseDir}postmir_${Date.now()}.csv`;
-      await FileSystem.writeAsStringAsync(fileUri, csv, {
+      await LegacyFileSystem.writeAsStringAsync(fileUri, csv, {
         encoding: 'utf8',
       });
       if (await Sharing.isAvailableAsync()) {
@@ -753,7 +754,7 @@ export default function HomeScreen() {
       const baseDir = FileSystem.Paths.cache.uri || FileSystem.Paths.document.uri;
       if (!baseDir) throw new Error('Sin directorio con escritura');
       const fileUri = `${baseDir}postmir_${Date.now()}.json`;
-      await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(filtered, null, 2), {
+      await LegacyFileSystem.writeAsStringAsync(fileUri, JSON.stringify(filtered, null, 2), {
         encoding: 'utf8',
       });
       if (await Sharing.isAvailableAsync()) {
@@ -850,7 +851,7 @@ export default function HomeScreen() {
       if (!baseDir) throw new Error('Sin directorio con escritura');
 
       const localUri = `${baseDir}postmir_companion_${updateManifest.versionCode}.apk`;
-      const download = FileSystem.createDownloadResumable(
+      const download = LegacyFileSystem.createDownloadResumable(
         updateManifest.apkUrl,
         localUri,
         {},
@@ -863,7 +864,7 @@ export default function HomeScreen() {
       const result = await download.downloadAsync();
       if (!result?.uri) throw new Error('Descarga incompleta');
 
-      const contentUri = await FileSystem.getContentUriAsync(result.uri);
+      const contentUri = await LegacyFileSystem.getContentUriAsync(result.uri);
       const flags =
         ANDROID_INTENT_FLAG_ACTIVITY_NEW_TASK | ANDROID_INTENT_FLAG_GRANT_READ_URI_PERMISSION;
 
