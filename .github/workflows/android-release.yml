@@ -49,7 +49,7 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          BUILD_ID=$(jq -r '.[0].id' eas-build.json)
+          BUILD_ID=$(jq -r '.[0].id // .id' eas-build.json)
           echo "BUILD_ID=$BUILD_ID" >> $GITHUB_ENV
           npx -y eas-cli build:view "$BUILD_ID" --non-interactive --json > build-view.json
 
@@ -58,6 +58,7 @@ jobs:
             .artifacts.applicationArchiveUrl //
             .artifacts.artifactUrl //
             .artifacts.apkUrl //
+            .artifacts.url //
             empty
           ' build-view.json)
 
@@ -97,4 +98,3 @@ jobs:
           files: |
             mobile/postmir-companion.apk
             mobile/latest.json
-
