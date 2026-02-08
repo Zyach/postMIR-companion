@@ -1,7 +1,7 @@
 {
   "versionCode": 4,
   "versionName": "1.0.0",
-  "apkUrl": "https://github.com/zyach/postMIR-companion/releases/latest/download/postmir-companion.apk",
+  "apkUrl": "https://github.com/Zyach/postMIR-companion/releases/latest/download/postmir-companion.apk",
   "publishedAt": "2026-02-08T00:00:00Z",
   "notes": "Cambios: percentiles + mejoras de filtros."
 }

@@ -74,11 +74,11 @@ Puedes alojarlo en GitHub Releases con 2 assets:
 Y apuntar la app a:
 
 ```
-https://github.com/zyach/postMIR-companion/releases/latest/download/latest.json
+https://github.com/Zyach/postMIR-companion/releases/latest/download/latest.json
 ```
 
 La URL del APK dentro del manifest quedaria:
 
 ```
-https://github.com/zyach/postMIR-companion/releases/latest/download/postmir-companion.apk
+https://github.com/Zyach/postMIR-companion/releases/latest/download/postmir-companion.apk
 ```
