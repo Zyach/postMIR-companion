@@ -25,6 +25,14 @@ Edita `app.json`:
 - `expo.android.versionCode`: +1
 - (opcional) `expo.version`
 
+Atajo:
+
+```bash
+cd mobile
+npm run release:bump -- --dry-run
+npm run release:bump
+```
+
 2. Lanza build en Expo
 
 ```bash
@@ -65,4 +73,3 @@ Configura primero los secrets en GitHub:
 - `EXPO_TOKEN`: token de Expo con permisos para EAS.
 
 Luego ejecuta el workflow **Android Release (EAS -> GitHub Releases)** desde la pestaña Actions.
-

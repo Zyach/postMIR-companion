@@ -8,6 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "release:bump": "node scripts/release-bump.mjs",
     "make:update-manifest": "node scripts/make-update-manifest.mjs",
     "lint": "expo lint"
   },
