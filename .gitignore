@@ -18,7 +18,7 @@ __pycache__/
 .DS_Store
 .env
 .env.*
+.secrets/
 
 # Workspace backup (temporary while migrating git history)
 _mobile_repo/
-
