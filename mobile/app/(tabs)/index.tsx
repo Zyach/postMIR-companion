@@ -29,7 +29,8 @@ const UPDATED_KEY = 'postmir_dataset_updated';
 
 // Endpoint expected to return JSON like:
 // { "versionCode": 3, "versionName": "1.0.0", "apkUrl": "https://.../postmir.apk", "notes": "..." }
-const UPDATE_MANIFEST_URL = 'https://postmir.binpar.cloud/app/postmir-companion/latest.json';
+const UPDATE_MANIFEST_URL =
+  'https://github.com/zyach/postMIR-companion/releases/latest/download/latest.json';
 
 const UPDATE_LAST_CHECK_KEY = 'postmir_update_last_check_v1';
 const UPDATE_LAST_NOTIFIED_KEY = 'postmir_update_last_notified_v1';
