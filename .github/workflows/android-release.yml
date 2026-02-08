@@ -31,6 +31,16 @@ jobs:
         working-directory: mobile
         run: npm ci
 
+      - name: Align EAS project slug (temporary)
+        working-directory: mobile
+        run: |
+          # This repo was renamed to postmir-companion, but the linked EAS project
+          # is still @zyach/postmir-explorer. EAS fails builds when slug doesn't match
+          # extra.eas.projectId. We align slug only for the build step.
+          tmp=$(mktemp)
+          jq '.expo.slug = "postmir-explorer"' app.json > "$tmp"
+          mv "$tmp" app.json
+
       - name: Write Android keystore (local credentials)
         working-directory: mobile
         env:
