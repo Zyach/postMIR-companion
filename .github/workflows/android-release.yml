@@ -1,0 +1,100 @@
+name: Android Release (EAS -> GitHub Releases)
+
+on:
+  workflow_dispatch:
+    inputs:
+      notes:
+        description: "Notas de la version (changelog)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install deps
+        working-directory: mobile
+        run: npm ci
+
+      - name: Start EAS build (Android APK)
+        working-directory: mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          npx -y eas-cli build \
+            -p android \
+            --profile release \
+            --non-interactive \
+            --wait \
+            --json \
+            > eas-build.json
+
+      - name: Resolve artifact URL
+        working-directory: mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          BUILD_ID=$(jq -r '.[0].id' eas-build.json)
+          echo "BUILD_ID=$BUILD_ID" >> $GITHUB_ENV
+          npx -y eas-cli build:view "$BUILD_ID" --non-interactive --json > build-view.json
+
+          APK_URL=$(jq -r '
+            .artifacts.buildUrl //
+            .artifacts.applicationArchiveUrl //
+            .artifacts.artifactUrl //
+            .artifacts.apkUrl //
+            empty
+          ' build-view.json)
+
+          if [ -z "$APK_URL" ] || [ "$APK_URL" = "null" ]; then
+            echo "Could not find an APK URL in build-view.json" >&2
+            echo "--- build-view.json ---" >&2
+            cat build-view.json >&2
+            exit 1
+          fi
+
+          echo "APK_URL=$APK_URL" >> $GITHUB_ENV
+
+      - name: Download APK
+        working-directory: mobile
+        run: |
+          curl -L "$APK_URL" -o postmir-companion.apk
+          ls -la postmir-companion.apk
+
+      - name: Generate latest.json
+        working-directory: mobile
+        run: |
+          APK_STABLE_URL="https://github.com/${{ github.repository }}/releases/latest/download/postmir-companion.apk"
+          node scripts/make-update-manifest.mjs "$APK_STABLE_URL" "${{ inputs.notes }}" > latest.json
+          cat latest.json
+
+          VERSION_CODE=$(jq -r '.expo.android.versionCode' app.json)
+          VERSION_NAME=$(jq -r '.expo.version' app.json)
+          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "android-v${{ env.VERSION_NAME }}-b${{ env.VERSION_CODE }}"
+          name: "Android v${{ env.VERSION_NAME }} (build ${{ env.VERSION_CODE }})"
+          body: ${{ inputs.notes }}
+          files: |
+            mobile/postmir-companion.apk
+            mobile/latest.json
+

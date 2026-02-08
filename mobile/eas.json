@@ -10,6 +10,12 @@
         "credentialsSource": "local"
       }
     },
+    "release": {
+      "android": {
+        "buildType": "apk",
+        "credentialsSource": "remote"
+      }
+    },
     "production": {
       "android": {
         "buildType": "app-bundle",
