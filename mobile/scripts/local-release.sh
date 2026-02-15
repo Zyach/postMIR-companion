@@ -3,6 +3,7 @@ set -euo pipefail
 
 if [[ $# -lt 2 ]]; then
   echo "Usage: $0 <apk_path> <apk_url> [notes...]" >&2
+  echo "Note: latest.json is ignored by git (see .gitignore)." >&2
   exit 1
 fi
 

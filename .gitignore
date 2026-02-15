@@ -13,6 +13,7 @@ __pycache__/
 *.aab
 *.bundle
 *.strings
+mobile/latest.json
 
 # Local / temp
 .DS_Store
