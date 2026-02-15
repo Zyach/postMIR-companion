@@ -46,8 +46,10 @@ npx -y eas-cli build -p android --profile release --non-interactive
 
 ```bash
 cd mobile
+APK_SHA256=$(sha256sum postmir-companion.apk | awk '{print $1}')
 npm run make:update-manifest -- \
   "https://github.com/zyach/postMIR-companion/releases/latest/download/postmir-companion.apk" \
+  "$APK_SHA256" \
   "Notas de la version" \
   > latest.json
 ```

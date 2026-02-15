@@ -54,7 +54,7 @@ def main():
         f_city_text = st.text_input("Buscar ciudad (texto)", value="")
         f_center = st.text_input("Buscar centro (texto)", value="")
         f_year = st.selectbox("Año", options=["Todos", 2025, 2024, 2023], index=1)
-        f_limit = st.slider("Máximo de filas", min_value=50, max_value=2000, value=300, step=50)
+        page_size = st.slider("Filas por página", min_value=50, max_value=500, value=200, step=50)
 
         cur.execute("SELECT MIN(total_places), MAX(total_places) FROM plazas WHERE total_places IS NOT NULL")
         min_places, max_places = cur.fetchone()
@@ -139,6 +139,16 @@ def main():
         where.append("last_year_order_max BETWEEN ? AND ?")
         params.extend([int(order_range[0]), int(order_range[1])])
 
+    count_sql = "SELECT COUNT(*) FROM plazas"
+    if where:
+        count_sql += " WHERE " + " AND ".join(where)
+    cur.execute(count_sql, params)
+    total_rows = cur.fetchone()[0]
+
+    total_pages = max(1, (total_rows + page_size - 1) // page_size)
+    page = st.sidebar.number_input("Página", min_value=1, max_value=int(total_pages), value=1, step=1)
+    offset = (int(page) - 1) * page_size
+
     sql = (
         "SELECT specialty, search_name, ccaa, province, city, center, total_places, "
         "last_year, last_year_order_max, last_year_orders "
@@ -147,15 +157,26 @@ def main():
     if where:
         sql += " WHERE " + " AND ".join(where)
     sql += " ORDER BY (last_year_order_max IS NULL), last_year_order_max DESC"
-    sql += " LIMIT ?"
-    params.append(int(f_limit))
+    sql += " LIMIT ? OFFSET ?"
+    query_params = params + [int(page_size), int(offset)]
 
-    cur.execute(sql, params)
+    cur.execute(sql, query_params)
     cols = [c[0] for c in cur.description]
     rows = [dict(zip(cols, r)) for r in cur.fetchall()]
 
     st.subheader("Resultados")
-    st.write(f"Filas: {len(rows)}")
+    st.write(f"Coincidencias totales: {total_rows} | Página {page} de {total_pages} | Filas en página: {len(rows)}")
+    if rows:
+        # resumen rápido por especialidad y CCAA (top 5)
+        st.caption("Top 5 especialidades (por recuento en filtros actuales)")
+        cur.execute(
+            f"SELECT specialty, COUNT(*) as n FROM plazas {'WHERE ' + ' AND '.join(where) if where else ''} "
+            "GROUP BY specialty ORDER BY n DESC LIMIT 5",
+            params,
+        )
+        spec_summary = cur.fetchall()
+        st.write({k: v for k, v in spec_summary})
+
     st.dataframe(rows, use_container_width=True)
 
     if rows:
@@ -165,18 +186,26 @@ def main():
             csv_rows.append([r.get(c, "") for c in cols])
         csv_text = "\n".join(",".join(["\"" + str(v).replace("\"", "\"\"") + "\"" for v in row]) for row in csv_rows)
         xlsx_bytes = _xlsx_bytes(cols, rows)
-        st.download_button(
-            "Descargar CSV filtrado",
-            data=csv_text,
-            file_name="plazas_filtradas.csv",
-            mime="text/csv",
-        )
-        st.download_button(
-            "Descargar Excel filtrado",
-            data=xlsx_bytes,
-            file_name="plazas_filtradas.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        )
+        st.markdown("---")
+        st.subheader("Descargas")
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.download_button(
+                "⬇️ Descargar CSV filtrado",
+                data=csv_text,
+                file_name="plazas_filtradas.csv",
+                mime="text/csv",
+                use_container_width=True,
+                type="primary",
+            )
+        with col_b:
+            st.download_button(
+                "⬇️ Descargar Excel filtrado",
+                data=xlsx_bytes,
+                file_name="plazas_filtradas.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True,
+            )
 
 
 if __name__ == "__main__":

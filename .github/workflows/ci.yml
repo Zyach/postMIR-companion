@@ -1,0 +1,44 @@
+name: CI (lint + updater smoke)
+
+on:
+  push:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/ci.yml'
+
+jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install deps
+        working-directory: mobile
+        run: npm ci
+
+      - name: Lint (Expo)
+        working-directory: mobile
+        run: npm run lint -- --max-warnings=0
+
+      - name: Updater smoke (no emulator)
+        working-directory: mobile
+        env:
+          TZ: UTC
+        run: npm run test:updater-smoke
+
+      - name: CSV validation smoke
+        run: python -m unittest tests.test_csv_validation

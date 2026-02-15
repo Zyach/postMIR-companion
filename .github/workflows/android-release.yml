@@ -162,7 +162,8 @@ jobs:
         working-directory: mobile
         run: |
           APK_STABLE_URL="https://github.com/${{ github.repository }}/releases/latest/download/postmir-companion.apk"
-          node scripts/make-update-manifest.mjs "$APK_STABLE_URL" "${{ inputs.notes }}" > latest.json
+          APK_SHA256=$(sha256sum postmir-companion.apk | awk '{print $1}')
+          node scripts/make-update-manifest.mjs "$APK_STABLE_URL" "$APK_SHA256" "${{ inputs.notes }}" > latest.json
           cat latest.json
 
           VERSION_CODE=$(jq -r '.expo.android.versionCode' app.json)

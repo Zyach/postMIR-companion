@@ -1,11 +1,25 @@
 import csv
 import os
 import sqlite3
+import sys
 
 
 BASE_DIR = os.path.dirname(__file__)
 DATA_PATH = os.path.join(BASE_DIR, "plazas_orden_ultimo_ano.csv")
 DB_PATH = os.path.join(BASE_DIR, "plazas.db")
+
+REQUIRED_COLUMNS = {
+    "specialty",
+    "search_name",
+    "ccaa",
+    "province",
+    "city",
+    "center",
+    "total_places",
+    "last_year",
+    "last_year_order_max",
+    "last_year_orders",
+}
 
 
 def _to_int(value):
@@ -15,9 +29,58 @@ def _to_int(value):
         return None
 
 
+def _validate_csv_headers(fieldnames):
+    if not fieldnames:
+        raise ValueError("CSV sin encabezados")
+    missing = REQUIRED_COLUMNS - set(fieldnames)
+    if missing:
+        raise ValueError(f"CSV incompleto: faltan columnas {sorted(missing)}")
+
+
+def _validate_row_types(row, line_no, errors):
+    def _expect_int(val, col):
+        if val in (None, "", "NULL"):
+            return None
+        try:
+            return int(val)
+        except Exception:
+            errors.append(f"Linea {line_no}: columna {col} no es int ('{val}')")
+            return None
+
+    row["total_places"] = _expect_int(row.get("total_places"), "total_places")
+    row["last_year"] = _expect_int(row.get("last_year"), "last_year")
+    row["last_year_order_max"] = _expect_int(row.get("last_year_order_max"), "last_year_order_max")
+
+
+def validate_csv(path):
+    errors = []
+    valid_rows = 0
+    with open(path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        _validate_csv_headers(reader.fieldnames)
+        for line_no, r in enumerate(reader, start=2):  # header is line 1
+            _validate_row_types(r, line_no, errors)
+            valid_rows += 1
+
+    if errors:
+        for msg in errors[:20]:
+            print(msg, file=sys.stderr)
+        if len(errors) > 20:
+            print(f"... {len(errors) - 20} errores mas", file=sys.stderr)
+        # fail-fast on schema/type issues
+        raise ValueError(f"CSV invalido: {len(errors)} filas con tipos incorrectos")
+
+    if valid_rows == 0:
+        raise ValueError("CSV sin filas validas")
+
+    return True
+
+
 def ensure_db():
     if not os.path.exists(DATA_PATH):
         raise FileNotFoundError(f"No existe el dataset: {DATA_PATH}")
+
+    validate_csv(DATA_PATH)
 
     csv_mtime = os.path.getmtime(DATA_PATH)
     if os.path.exists(DB_PATH):

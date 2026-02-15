@@ -49,10 +49,18 @@ La app consulta un JSON del estilo:
   "versionCode": 4,
   "versionName": "1.0.0",
   "apkUrl": "https://.../postmir-companion.apk",
+  "sha256": "<sha256-hex>",
   "publishedAt": "2026-02-08T00:00:00Z",
   "notes": "Notas de la version"
 }
 ```
+
+Notas:
+
+- `sha256` es obligatorio (la app verifica la integridad del APK antes de instalar).
+- `signature` / `signatureAlg` son opcionales (reservado para una futura verificacion criptografica adicional).
+  - El generador admite `UPDATE_SIGNATURE` y `UPDATE_SIGNATURE_ALG` como variables de entorno.
+- Guardarrail: la verificacion SHA-256 se omite con error si el APK excede ~200 MB (evita agotar memoria en dispositivos modestos). En ese caso, se debe instalar manualmente.
 
 Ejemplo:
 
@@ -61,7 +69,8 @@ Ejemplo:
 Generador:
 
 ```bash
-npm run make:update-manifest -- "https://.../postmir-companion.apk" "Notas de la version"
+APK_SHA256=$(sha256sum postmir-companion.apk | awk '{print $1}')
+npm run make:update-manifest -- "https://.../postmir-companion.apk" "$APK_SHA256" "Notas de la version"
 ```
 
 ### GitHub Releases (recomendado)
