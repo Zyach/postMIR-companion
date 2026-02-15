@@ -1,0 +1,8 @@
+{
+  "versionCode": 7,
+  "versionName": "1.0.3",
+  "apkUrl": "https://github.com/Zyach/postMIR-companion/releases/latest/download/postmir-companion.apk",
+  "sha256": "ec5f0a64dcf4d9e44934a066980cf85eb58cfa43ccb8a1c731b41816bcc398e6",
+  "publishedAt": "2026-02-15T00:00:00Z",
+  "notes": "Placeholder manifest generado localmente con APK PostMIR_8.4.3.apk en el repo."
+}
