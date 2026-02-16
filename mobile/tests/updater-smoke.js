@@ -78,7 +78,20 @@ function installMocks() {
 
   const originalLoad = Module._load;
   Module._load = function (req, parent, isMain) {
-    if (req === 'expo-file-system') return { File: FileStub, Paths, createDownloadResumable, deleteAsync };
+    if (req === 'expo-file-system') return {
+      File: FileStub,
+      Paths,
+      createDownloadResumable,
+      deleteAsync,
+      getInfoAsync: async (uri) => {
+        try {
+          const stat = fs.statSync(uri);
+          return { exists: true, uri, isDirectory: stat.isDirectory(), size: stat.size };
+        } catch {
+          return { exists: false, uri, isDirectory: false };
+        }
+      },
+    };
     if (req === 'expo-file-system/legacy')
       return { createDownloadResumable, deleteAsync, getContentUriAsync, writeAsStringAsync: fs.promises.writeFile };
     if (req === 'expo-intent-launcher') return { startActivityAsync: async () => {} };

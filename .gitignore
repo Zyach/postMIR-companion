@@ -19,6 +19,7 @@ mobile/latest.json
 .DS_Store
 .env
 .env.*
+*.env
 .secrets/
 
 # Workspace backup (temporary while migrating git history)

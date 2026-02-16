@@ -53,7 +53,7 @@ class CsvValidationTest(unittest.TestCase):
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as f:
             f.write(data)
             path = f.name
-        self.assertIsNone(validate_csv(path))
+        self.assertTrue(validate_csv(path))
 
     def test_missing_column_fails(self):
         bad_headers = HEADERS[:-1]  # drop last_year_orders

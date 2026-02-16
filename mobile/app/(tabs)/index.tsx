@@ -72,7 +72,7 @@ async function getPlacesTree(token: string, specialty: string) {
   return data?.getPlaces || [];
 }
 
-const SORT_OPTIONS: Array<{ key: SortKey; label: string }> = [
+const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'order_selected_year', label: 'Cierre (ano)' },
   { key: 'total_places', label: 'Plazas' },
   { key: 'center', label: 'Centro' },
@@ -88,7 +88,6 @@ export default function HomeScreen() {
     token,
     loading,
     exporting,
-    dataset,
     lastUpdated,
     selectedSpecialties,
     selectedCcaas,
@@ -269,7 +268,7 @@ export default function HomeScreen() {
 
         {!!updateError && <Text style={styles.errorText}>{updateError}</Text>}
         {canInstallUpdate && (
-          <Text style={styles.hint}>Requiere permitir "Instalar apps desconocidas".</Text>
+          <Text style={styles.hint}>Requiere permitir &quot;Instalar apps desconocidas&quot;.</Text>
         )}
       </View>
 
@@ -407,8 +406,8 @@ export default function HomeScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Filtro avanzado</Text>
         <View style={styles.row}>
-          <View style={styles.col}>
-            <Text style={styles.label}>Filtrar provincia (texto)</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.filterText}>Filtrar provincia (texto)</Text>
             <TextInput
               value={orderMin}
               onChangeText={setOrderMin}

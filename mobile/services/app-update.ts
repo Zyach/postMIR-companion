@@ -218,7 +218,7 @@ export async function computeFileSha256(fileUri: string) {
 
   const info = await FileSystem.getInfoAsync(fileUri);
   const MAX_BYTES = 200 * 1024 * 1024; // 200 MB guardrail
-  if (info?.size && info.size > MAX_BYTES) {
+  if (info?.exists && 'size' in info && (info as { size: number }).size > MAX_BYTES) {
     throw new UpdateError(
       'FILE_TOO_LARGE',
       'El APK es demasiado grande para verificar en memoria. Usa descarga manual o divide el paquete.'
