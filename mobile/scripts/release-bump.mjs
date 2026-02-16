@@ -72,13 +72,12 @@ if (typeof nextVersion === 'string' && nextVersion.length) {
 const out = JSON.stringify(doc, null, 2) + '\n';
 
 if (dryRun) {
-  console.log(`versionCode: ${currentVc} -> ${nextVc}`);
+  console.error(`versionCode: ${currentVc} -> ${nextVc}`);
   if (typeof currentVersion === 'string') {
-    console.log(`version: ${currentVersion} -> ${doc.expo.version}`);
+    console.error(`version: ${currentVersion} -> ${doc.expo.version}`);
   }
   process.exit(0);
 }
 
 fs.writeFileSync(appJsonPath, out, 'utf8');
-console.log(`Updated app.json: versionCode=${nextVc}, version=${doc.expo.version}`);
-
+console.error(`Updated app.json: versionCode=${nextVc}, version=${doc.expo.version}`);

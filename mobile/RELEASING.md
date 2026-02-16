@@ -33,7 +33,7 @@ Atajo:
   npm run release:bump
   ```
 
-Atajo: `npm run release:build` ejecuta `release:bump` y lanza el build `--profile release` en una sola orden (igual requiere credenciales y EAS configurado).
+Atajo: `npm run release:build` ejecuta `release:bump` y lanza el build `--profile release` en una sola orden (igual requiere credenciales y EAS configurado). Si quieres capturar solo el JSON del build en archivo, usa `npm run --silent release:build > eas-build.json`.
 
 2. Lanza build en Expo
 

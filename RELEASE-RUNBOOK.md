@@ -18,7 +18,7 @@ done
 Opción rápida (bump + build):
 ```bash
 cd mobile
-npm run release:build > eas-build.json
+npm run --silent release:build > eas-build.json
 ```
 
 Opción manual:
