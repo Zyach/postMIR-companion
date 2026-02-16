@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "PostMIR Companion",
-    "slug": "postmir-companion",
+    "slug": "postmir-explorer",
     "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
