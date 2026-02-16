@@ -27,11 +27,13 @@ Edita `app.json`:
 
 Atajo:
 
-```bash
-cd mobile
-npm run release:bump -- --dry-run
-npm run release:bump
-```
+ ```bash
+  cd mobile
+  npm run release:bump -- --dry-run
+  npm run release:bump
+  ```
+
+Atajo: `npm run release:build` ejecuta `release:bump` y lanza el build `--profile release` en una sola orden (igual requiere credenciales y EAS configurado).
 
 2. Lanza build en Expo
 

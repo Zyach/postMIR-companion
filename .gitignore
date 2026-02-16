@@ -21,6 +21,8 @@ mobile/latest.json
 .env.*
 *.env
 .secrets/
+mobile/keystore.jks
+mobile/credentials.json
 
 # Workspace backup (temporary while migrating git history)
 _mobile_repo/

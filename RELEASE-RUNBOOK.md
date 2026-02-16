@@ -15,6 +15,13 @@ done
 4) Versionado: `app.json`/`package.json` en 1.0.3, `versionCode`=7 (ajusta si publicas otro build).
 
 ## Build firmado (EAS)
+Opción rápida (bump + build):
+```bash
+cd mobile
+npm run release:build > eas-build.json
+```
+
+Opción manual:
 ```bash
 cd mobile
 npx -y eas-cli build -p android --profile release --non-interactive --wait --json > eas-build.json
@@ -52,4 +59,3 @@ Sube a tu canal (p.ej. GitHub Releases): `postmir-companion.apk` y `mobile/lates
 ## Corte por fallo
 - Si `eas-cli` no produce `eas-build.json` o `APK_URL`, NO continuar; cambia de host o depura npm/npx.
 - Si el SHA no coincide, NO publicar; reconstruir.
-

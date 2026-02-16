@@ -9,6 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "release:bump": "node scripts/release-bump.mjs",
+    "release:build": "npm run release:bump && npx -y eas-cli build -p android --profile release --non-interactive --wait --json",
     "make:update-manifest": "node scripts/make-update-manifest.mjs",
     "lint": "expo lint",
     "test:updater-smoke": "node tests/updater-smoke.js"
