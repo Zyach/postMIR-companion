@@ -13,6 +13,11 @@ Archivos relevantes:
 - `query.py` – consultas rápidas por CLI
 - `build_db.py` – genera/actualiza la base SQLite
 
+Documentacion de estado y plan:
+
+- `STATE.md` – estado actual del proyecto
+- `ROADMAP.md` – roadmap tecnico
+
 ## Indicadores en tarjetas (app movil)
 
 Los siguientes indicadores estan pensados para responder: "que orden necesito para entrar?".
