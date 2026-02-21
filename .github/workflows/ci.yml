@@ -40,5 +40,9 @@ jobs:
           TZ: UTC
         run: npm run test:updater-smoke
 
+      - name: Dataset metrics tests
+        working-directory: mobile
+        run: npm run test:dataset-metrics
+
       - name: CSV validation smoke
         run: python -m unittest tests.test_csv_validation

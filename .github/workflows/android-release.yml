@@ -31,6 +31,10 @@ jobs:
         working-directory: mobile
         run: npm ci
 
+      - name: Dataset metrics tests
+        working-directory: mobile
+        run: npm run test:dataset-metrics
+
       - name: Align EAS project slug (temporary)
         working-directory: mobile
         run: |

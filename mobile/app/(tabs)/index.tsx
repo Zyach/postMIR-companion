@@ -598,4 +598,32 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     fontSize: 12,
   },
+  metricGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 10,
+  },
+  metricItem: {
+    flexBasis: '48%',
+    flexGrow: 1,
+    backgroundColor: '#0b1220',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: '#1f2937',
+  },
+  metricLabel: {
+    color: '#94a3b8',
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  metricValue: {
+    color: '#e2e8f0',
+    fontSize: 13,
+    fontWeight: '600',
+    marginTop: 2,
+  },
 });
