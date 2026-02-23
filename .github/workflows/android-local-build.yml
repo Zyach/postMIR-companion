@@ -7,6 +7,10 @@ on:
         description: "EAS build profile (release/preview)"
         required: false
         default: "release"
+      notes:
+        description: "Notas de version (changelog)"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -39,6 +43,11 @@ jobs:
       - name: Install deps
         working-directory: mobile
         run: npm ci
+
+      - name: Bump version
+        working-directory: mobile
+        run: |
+          npm run --silent release:bump
 
       - name: Dataset metrics tests
         working-directory: mobile
@@ -97,8 +106,22 @@ jobs:
             --local \
             --output ./dist/postmir-companion.apk
 
+      - name: Generate latest.json
+        working-directory: mobile
+        run: |
+          APK_STABLE_URL="https://github.com/${{ github.repository }}/releases/latest/download/postmir-companion.apk"
+          APK_SHA256=$(sha256sum dist/postmir-companion.apk | awk '{print $1}')
+          node scripts/make-update-manifest.mjs "$APK_STABLE_URL" "$APK_SHA256" "${{ inputs.notes }}" > latest.json
+          cat latest.json
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: postmir-companion-apk
           path: mobile/dist/postmir-companion.apk
+
+      - name: Upload manifest artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-json
+          path: mobile/latest.json
