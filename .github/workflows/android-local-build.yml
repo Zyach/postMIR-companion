@@ -106,6 +106,15 @@ jobs:
             --local \
             --output ./dist/postmir-companion.apk
 
+      - name: Verify APK exists
+        working-directory: mobile
+        run: |
+          if [ ! -f dist/postmir-companion.apk ]; then
+            echo "APK not found at mobile/dist/postmir-companion.apk" >&2
+            exit 1
+          fi
+          echo "APK_READY=true" >> $GITHUB_ENV
+
       - name: Generate latest.json
         working-directory: mobile
         run: |
@@ -132,6 +141,7 @@ jobs:
           path: mobile/latest.json
 
       - name: Create GitHub Release
+        if: ${{ success() && env.APK_READY == 'true' }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "android-v${{ env.VERSION_NAME }}-b${{ env.VERSION_CODE }}"
