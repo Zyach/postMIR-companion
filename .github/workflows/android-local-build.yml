@@ -61,6 +61,11 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
+          echo "::add-mask::$ANDROID_KEYSTORE_BASE64"
+          echo "::add-mask::$ANDROID_KEYSTORE_PASSWORD"
+          echo "::add-mask::$ANDROID_KEY_ALIAS"
+          echo "::add-mask::$ANDROID_KEY_PASSWORD"
+
           if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
             echo "Missing secret ANDROID_KEYSTORE_BASE64" >&2
             exit 1
@@ -103,6 +108,7 @@ jobs:
           npx -y eas-cli build \
             -p android \
             --profile "${{ inputs.profile }}" \
+            --build-logger-level error \
             --local \
             --output ./dist/postmir-companion.apk
 

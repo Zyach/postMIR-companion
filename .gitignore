@@ -27,5 +27,8 @@ mobile/credentials.json
 # Workspace backup (temporary while migrating git history)
 _mobile_repo/
 
+# Local tooling output
+.code/
+
 # Local instructions
 AGENTS.md
