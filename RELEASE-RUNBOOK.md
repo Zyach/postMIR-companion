@@ -1,6 +1,6 @@
-# Release Runbook (Android APK via EAS)
+# Release Runbook (Android APK)
 
-> Nota: En este host `eas-cli` vía npx no produce salida. Ejecuta en un entorno con npm/npx funcionales. `latest.json` está ignorado por git; no se comprometen artefactos.
+> Nota: `latest.json` está ignorado por git; no se comprometen artefactos. Evita subir logs que contengan secretos. `.code/` esta ignorado para prevenir filtraciones locales.
 
 ## Prechecks
 1) Cargar credenciales (no imprimir valores):
@@ -12,9 +12,29 @@ done
 ```
 2) Entorno: Node 18/20 con npm/npx funcionales (sin contenedores basta).
 3) Dependencias: `cd mobile && npm ci`.
-4) Versionado: `app.json`/`package.json` en 1.0.3, `versionCode`=7 (ajusta si publicas otro build).
+4) Versionado: `app.json`/`package.json` y `versionCode` deben incrementarse en cada release.
 
-## Build firmado (EAS)
+## Ruta recomendada (GitHub Actions)
+Workflow: `.github/workflows/android-local-build.yml`
+
+1) GitHub Actions -> **Android Local Build (GitHub Actions)** -> *Run workflow*.
+2) Opcional: completa `notes` (changelog). Es opcional.
+3) El workflow:
+   - Hace `release:bump`.
+   - Compila APK con EAS local en runner x86_64.
+   - Genera `latest.json`.
+   - Publica GitHub Release con ambos artefactos.
+
+Requisitos en Secrets del repo:
+- `ANDROID_KEYSTORE_BASE64`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+- `EXPO_TOKEN` (opcional para build local, recomendado)
+
+## Build firmado (EAS cloud)
+Nota: el plan Free puede bloquear builds. Usar solo si hay cuota.
+
 Opción rápida (bump + build):
 ```bash
 cd mobile
@@ -59,3 +79,7 @@ Sube a tu canal (p.ej. GitHub Releases): `postmir-companion.apk` y `mobile/lates
 ## Corte por fallo
 - Si `eas-cli` no produce `eas-build.json` o `APK_URL`, NO continuar; cambia de host o depura npm/npx.
 - Si el SHA no coincide, NO publicar; reconstruir.
+
+## Nota sobre builds locales en ARM
+Si usas `eas-cli build --local` en ARM, puede fallar por CMake x86_64 en el SDK.
+La ruta recomendada es GitHub Actions (runner x86_64).
