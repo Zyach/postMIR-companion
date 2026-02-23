@@ -13,7 +13,7 @@ on:
         default: ""
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-apk:
@@ -114,6 +114,11 @@ jobs:
           node scripts/make-update-manifest.mjs "$APK_STABLE_URL" "$APK_SHA256" "${{ inputs.notes }}" > latest.json
           cat latest.json
 
+          VERSION_CODE=$(jq -r '.expo.android.versionCode' app.json)
+          VERSION_NAME=$(jq -r '.expo.version' app.json)
+          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
@@ -125,3 +130,13 @@ jobs:
         with:
           name: latest-json
           path: mobile/latest.json
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "android-v${{ env.VERSION_NAME }}-b${{ env.VERSION_CODE }}"
+          name: "Android v${{ env.VERSION_NAME }} (build ${{ env.VERSION_CODE }})"
+          body: ${{ inputs.notes }}
+          files: |
+            mobile/dist/postmir-companion.apk
+            mobile/latest.json
