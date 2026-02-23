@@ -1,0 +1,104 @@
+name: Android Local Build (GitHub Actions)
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "EAS build profile (release/preview)"
+        required: false
+        default: "release"
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install deps
+        working-directory: mobile
+        run: npm ci
+
+      - name: Dataset metrics tests
+        working-directory: mobile
+        run: npm run test:dataset-metrics
+
+      - name: Write Android keystore (local credentials)
+        working-directory: mobile
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "Missing secret ANDROID_KEYSTORE_BASE64" >&2
+            exit 1
+          fi
+
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > keystore.jks
+
+          node - <<'NODE'
+          const fs = require('fs');
+          const manifest = {
+            android: {
+              keystore: {
+                keystorePath: 'keystore.jks',
+                keystorePassword: process.env.ANDROID_KEYSTORE_PASSWORD,
+                keyAlias: process.env.ANDROID_KEY_ALIAS,
+                keyPassword: process.env.ANDROID_KEY_PASSWORD,
+              },
+            },
+          };
+
+          for (const k of ['ANDROID_KEYSTORE_PASSWORD','ANDROID_KEY_ALIAS','ANDROID_KEY_PASSWORD']) {
+            if (!process.env[k]) {
+              console.error(`Missing secret ${k}`);
+              process.exit(1);
+            }
+          }
+
+          fs.writeFileSync('credentials.json', JSON.stringify(manifest, null, 2));
+          NODE
+
+          echo "Android local credentials written."
+
+      - name: Build APK (EAS local)
+        working-directory: mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          NODE_ENV: production
+        run: |
+          mkdir -p dist
+          npx -y eas-cli build \
+            -p android \
+            --profile "${{ inputs.profile }}" \
+            --local \
+            --output ./dist/postmir-companion.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: postmir-companion-apk
+          path: mobile/dist/postmir-companion.apk
